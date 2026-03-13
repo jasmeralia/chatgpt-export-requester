@@ -1,21 +1,21 @@
-# ChatGPT Export Requester
+# ChatGPT & Claude Export Requester
 
-A containerized Playwright project that **only initiates** a ChatGPT data export from the web UI.
+A containerized Playwright project that **only initiates** data exports from the ChatGPT and Claude web UIs.
 
 It does **not**:
 - read email
 - download the export archive
 - parse the export
-- use the OpenAI API
+- use the OpenAI or Anthropic APIs
 
-It uses a **persisted browser profile** that is already logged into ChatGPT.
+It uses **persisted browser profiles** that are already logged into each service.
 
 ## What it does
 
 1. Launch Chromium with the persisted profile
-2. Open ChatGPT
-3. Navigate to **Settings → Data Controls**
-4. Click **Export Data**
+2. Open the target service (ChatGPT or Claude)
+3. Navigate to the export settings
+4. Click the export button
 5. Save screenshots and a log entry
 6. Exit
 
@@ -35,20 +35,38 @@ make lint
 
 `make lint` will create `.venv/`, install `requirements-dev.txt`, and run `ruff` plus `mypy` from that virtual environment.
 
-### 2. Bootstrap the browser profile
-Run once, non-headless, and log in manually:
+### 2. Bootstrap the browser profiles
+Run once per service, non-headless, and log in manually:
 
+**ChatGPT:**
 ```bash
 docker compose run --rm exporter bootstrap
 ```
 
-A Chromium window should open. Log into ChatGPT, verify you can reach the app, then close the browser.
+**Claude:**
+```bash
+docker compose run --rm exporter claude-bootstrap
+```
 
-Your session will be stored in `./profile`.
+A Chromium window should open. Log into the service, verify you can reach the app, then close the browser.
+
+Sessions will be stored in `./profile` (ChatGPT) and `./claude-profile` (Claude).
 
 ### 3. Request an export
+
+**Both platforms (default):**
+```bash
+docker compose run --rm exporter
+```
+
+**ChatGPT only:**
 ```bash
 docker compose run --rm exporter request
+```
+
+**Claude only:**
+```bash
+docker compose run --rm exporter claude-request
 ```
 
 Artifacts will land in:
@@ -57,15 +75,15 @@ Artifacts will land in:
 
 ## Scheduled monthly run
 
-Example cron entry:
+Example cron entry (requests both exports):
 
 ```cron
-15 3 1 * * cd /opt/chatgpt-export-requester && docker compose run --rm exporter request >> /opt/chatgpt-export-requester/logs/cron.log 2>&1
+15 3 1 * * cd /opt/chatgpt-export-requester && docker compose run --rm exporter >> logs/cron.log 2>&1
 ```
 
 ## Notes
 
-- The `profile/` directory contains your ChatGPT session cookies. Treat it like a credential.
+- The `profile/` and `claude-profile/` directories contain session cookies. Treat them like credentials.
 - UI selectors may drift over time. If a run fails, start with the screenshots.
 - This project intentionally avoids email handling and download automation.
 - GitHub Actions runs `make lint` on pushes to `master` and pull requests, and publishes a GHCR image on pushes to `master` or tags.

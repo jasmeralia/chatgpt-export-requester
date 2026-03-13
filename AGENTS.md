@@ -1,28 +1,32 @@
 # AGENTS.md
 
 ## Project goal
-This project only automates **requesting** a ChatGPT data export from the ChatGPT web UI.
+This project automates **requesting** data exports from the ChatGPT and Claude web UIs.
 
 ## Hard scope limits
 Do not add:
 - email reading
 - IMAP integration
 - archive downloading
-- OpenAI API integration
+- OpenAI or Anthropic API integration
 - mailbox credentials
 - export parsing
 
 ## Existing assumptions
-- The user has a valid ChatGPT subscription/session
-- A persistent Chromium profile is mounted at `/app/profile`
-- The profile is logged into ChatGPT
+- The user has valid ChatGPT and/or Claude subscriptions/sessions
+- Persistent Chromium profiles are mounted at `/app/profile` (ChatGPT) and `/app/claude-profile` (Claude)
+- The profiles are logged into their respective services
 - The app runs in a container
 
 ## Key files
-- `scripts/request_export.py` — main export requester
-- `scripts/bootstrap_profile.py` — interactive profile bootstrap
-- `scripts/run_export.sh` — wrapper for normal runs
-- `scripts/bootstrap_profile.sh` — wrapper for initial login bootstrap
+- `scripts/request_export.py` — ChatGPT export requester
+- `scripts/request_claude_export.py` — Claude export requester
+- `scripts/bootstrap_profile.py` — ChatGPT interactive profile bootstrap
+- `scripts/bootstrap_claude_profile.py` — Claude interactive profile bootstrap
+- `scripts/run_export.sh` — wrapper for ChatGPT runs
+- `scripts/run_claude_export.sh` — wrapper for Claude runs
+- `scripts/bootstrap_profile.sh` — wrapper for ChatGPT login bootstrap
+- `scripts/bootstrap_claude_profile.sh` — wrapper for Claude login bootstrap
 - `chatgpt-export-requester-context.md` — project context and future-phase planning
 
 ## Runtime behavior expectations
@@ -33,7 +37,7 @@ Do not add:
 
 ## Debugging approach
 1. Inspect latest screenshot in `screenshots/`
-2. Run `bootstrap` mode non-headless
+2. Run `bootstrap` or `claude-bootstrap` mode non-headless
 3. Verify the profile is still logged in
 4. Adjust selectors if the UI moved
 
