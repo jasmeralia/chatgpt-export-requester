@@ -27,7 +27,7 @@ Do not add:
 - `scripts/run_claude_export.sh` — wrapper for Claude runs
 - `scripts/bootstrap_profile.sh` — wrapper for ChatGPT login bootstrap
 - `scripts/bootstrap_claude_profile.sh` — wrapper for Claude login bootstrap
-- `chatgpt-export-requester-context.md` — project context and future-phase planning
+- `docker-ai-export-requester-context.md` — project context and future-phase planning
 
 ## Runtime behavior expectations
 - Save screenshots before and after major UI actions

@@ -78,7 +78,7 @@ Artifacts will land in:
 Example cron entry (requests both exports):
 
 ```cron
-15 3 1 * * cd /opt/chatgpt-export-requester && docker compose run --rm exporter >> logs/cron.log 2>&1
+15 3 1 * * cd /opt/docker-ai-export-requester && docker compose run --rm exporter >> logs/cron.log 2>&1
 ```
 
 ## Notes

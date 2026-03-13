@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: jasmeralia/chatgpt-export-requester
+  IMAGE_NAME: jasmeralia/docker-ai-export-requester
 
 jobs:
   lint:
