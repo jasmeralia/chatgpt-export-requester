@@ -1,9 +1,17 @@
+import json
 import os
 import sys
-import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+from typing import TypedDict
+
+from playwright.sync_api import (
+    Page,
+    sync_playwright,
+)
+from playwright.sync_api import (
+    TimeoutError as PlaywrightTimeoutError,
+)
 
 BASE_URL = os.environ.get("CHATGPT_BASE_URL", "https://chatgpt.com")
 PROFILE_PATH = os.environ.get("PROFILE_PATH", "/app/profile")
@@ -15,19 +23,31 @@ REQUEST_TIMEOUT_MS = int(os.environ.get("REQUEST_TIMEOUT_MS", "30000"))
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
-ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 run_log = LOG_DIR / f"export-request-{ts}.json"
 
-def write_log(payload):
+
+class RunPayload(TypedDict):
+    timestamp_utc: str
+    base_url: str
+    headless: bool
+    status: str
+    screenshots: list[str]
+    notes: list[str]
+
+
+def write_log(payload: RunPayload) -> None:
     run_log.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
-def save_shot(page, name):
+
+def save_shot(page: Page, name: str) -> str:
     path = SCREENSHOT_DIR / f"{ts}-{name}.png"
     page.screenshot(path=str(path), full_page=True)
     return str(path)
 
-def main():
-    payload = {
+
+def main() -> int:
+    payload: RunPayload = {
         "timestamp_utc": ts,
         "base_url": BASE_URL,
         "headless": HEADLESS,
@@ -80,7 +100,7 @@ def main():
                     menu_opened = True
                     payload["notes"].append("Opened Settings directly from visible text.")
                 except Exception:
-                    pass
+                    payload["notes"].append("Could not open Settings directly from visible text.")
 
             payload["screenshots"].append(save_shot(page, "02-menu-or-home"))
 
@@ -88,7 +108,11 @@ def main():
             tried_direct = False
             for path in ("/#settings/DataControls", "/settings/data-controls"):
                 try:
-                    page.goto(f"{BASE_URL.rstrip('/')}{path}", wait_until="domcontentloaded", timeout=10000)
+                    page.goto(
+                        f"{BASE_URL.rstrip('/')}{path}",
+                        wait_until="domcontentloaded",
+                        timeout=10000,
+                    )
                     tried_direct = True
                     payload["notes"].append(f"Tried direct navigation: {path}")
                     break
@@ -96,7 +120,9 @@ def main():
                     continue
 
             if not tried_direct:
-                payload["notes"].append("Direct navigation paths were not reachable; falling back to visible UI.")
+                payload["notes"].append(
+                    "Direct navigation paths were not reachable; falling back to visible UI."
+                )
 
             # Fallback through visible UI.
             text_clicks = [
@@ -134,7 +160,7 @@ def main():
                     clicked = True
                     payload["notes"].append("Clicked Export Data using exact visible text.")
                 except Exception:
-                    pass
+                    payload["notes"].append("Could not click Export Data using exact visible text.")
 
             payload["screenshots"].append(save_shot(page, "04-post-click"))
 

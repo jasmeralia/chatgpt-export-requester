@@ -26,6 +26,15 @@ It uses a **persisted browser profile** that is already logged into ChatGPT.
 docker compose build
 ```
 
+### Development checks
+Run:
+
+```bash
+make lint
+```
+
+`make lint` will create `.venv/`, install `requirements-dev.txt`, and run `ruff` plus `mypy` from that virtual environment.
+
 ### 2. Bootstrap the browser profile
 Run once, non-headless, and log in manually:
 
@@ -59,3 +68,4 @@ Example cron entry:
 - The `profile/` directory contains your ChatGPT session cookies. Treat it like a credential.
 - UI selectors may drift over time. If a run fails, start with the screenshots.
 - This project intentionally avoids email handling and download automation.
+- GitHub Actions runs `make lint` on pushes to `master` and pull requests, and publishes a GHCR image on pushes to `master` or tags.
